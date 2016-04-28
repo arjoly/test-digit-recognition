@@ -66,4 +66,4 @@ acc_code = acc_code / length(code_speechs);
 
 % Display results
 disp(sprintf('Accuracy on single digits %d',  acc))
-disp(sprintf('Accuracy on codes sequence %d %', acc_code))
+disp(sprintf('Accuracy on code sequence %d %', acc_code))
