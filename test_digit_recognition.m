@@ -20,6 +20,10 @@ for class_digit = 0:9
     speechs = [speechs new_speechs];
 end
 
+% Load outlier data
+
+% TODO will be added later
+
 % Load code data
 code_directory = sprintf('%s%s', DATA_DIR, 'codes');
 try
@@ -49,6 +53,10 @@ addpath(genpath([LIBRARY_DIR 'HMMall']));
 % Test recognition system on single digits with no outlier
 [out outlier] = predict(speechs);
 acc = mean((1 - outlier) .* (out == ground_truth));
+
+% Test recognition system on outliers
+
+% TODO will be added later
 
 % Test recognition system on single digits
 code_out = predict_code(code_speechs);
