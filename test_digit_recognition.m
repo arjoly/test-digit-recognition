@@ -1,7 +1,7 @@
 clear
 
 LIBRARY_DIR = '~/Documents/MATLAB/';
-DATA_DIR = '/Users/ajoly/Dropbox/thesis/teaching_assistant/stochastique/2015-2016-eng-private/sons-stocha/';
+DATA_DIR = '~/Dropbox/thesis/teaching_assistant/stochastique/2015-2016-eng-private/sons-stocha/';
 
 % Load single data
 speechs = {};
@@ -62,33 +62,47 @@ end
 
 addpath(genpath([LIBRARY_DIR 'rastamat']));
 addpath(genpath([LIBRARY_DIR 'HMMall']));
+addpath(genpath(['.']));
 
-% Test recognition system on single digits with no outlier
-[out outlier] = predict(speechs);
+try
+    % Test recognition system on single digits with no outlier
+    [pred outlier] = predict(speechs);
+    acc_simple = mean(pred(:) == ground_truth(:));
+    acc = mean((1 - outlier(:)) .* (pred(:) == ground_truth(:)));
 
-acc_simple = mean(out == ground_truth);
-acc = mean((1 - outlier) .* (out == ground_truth));
-
-% Test recognition system on outliers
-[out outlier] = predict(outlier_speechs);
-outlier_acc = mean(outlier);
+    % Test recognition system on outliers
+    [out outlier] = predict(outlier_speechs);
+    outlier_acc = mean(outlier);
+catch
+    % predict has only pred
+    pred = predict(speechs);
+    acc_simple = mean(pred(:) == ground_truth(:));
+    acc = nan;
+    outlier_acc = nan;
+end
 
 % Test recognition system on single digits
 code_out = predict_code(code_speechs);
 
 acc_code = 0;
+hamming_score_code = 0;
 for i = 1:length(code_speechs)
     if length(code_ground_truth{i}) == length(code_out{i})
-        n_errors = sum(code_ground_truth{i} ~= code_out{i});
+        n_errors = sum(code_ground_truth{i}(:) ~= code_out{i}(:));
         if n_errors == 0
             acc_code = acc_code + 1;
         end
+        hamming_word = (length(code_ground_truth{i}) - n_errors) / length(code_ground_truth{i})
+        hamming_score_code = hamming_score_code + hamming_word
     end
 end
 acc_code = acc_code / length(code_speechs);
+hamming_score_code = hamming_score_code / length(code_speechs);
 
 % Display results
-disp(sprintf('Accuracy on single digits ........ %d',  acc_simple))
-disp(sprintf('Accuracy on single digits + reject %d',  acc))
-disp(sprintf('Accuracy on outliers ............. %d',  outlier_acc))
-disp(sprintf('Accuracy on code sequence ........ %d', acc_code))
+disp(sprintf('Accuracy on single digits ........ %f',  acc_simple))
+disp(sprintf('Accuracy on single digits + reject %f',  acc))
+disp(sprintf('Accuracy on outliers ............. %f',  outlier_acc))
+disp(sprintf('Hamming score on code sequence ... %f', hamming_score_code))
+
+rmpath(genpath(['.']));
