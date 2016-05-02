@@ -41,7 +41,7 @@ end
 
 code_ground_truth = {};
 code_files = dir(sprintf('%s/code*', code_directory));
-size(code_files)
+
 for file_id=1:length(code_files)
     fname = code_files(file_id).name;
     out = regexp(fname, '\D*(\d*)\D*.[wav|m4a]', 'tokens');
@@ -92,8 +92,8 @@ for i = 1:length(code_speechs)
         if n_errors == 0
             acc_code = acc_code + 1;
         end
-        hamming_word = (length(code_ground_truth{i}) - n_errors) / length(code_ground_truth{i})
-        hamming_score_code = hamming_score_code + hamming_word
+        hamming_word = (length(code_ground_truth{i}) - n_errors) / length(code_ground_truth{i});
+        hamming_score_code = hamming_score_code + hamming_word;
     end
 end
 acc_code = acc_code / length(code_speechs);
@@ -103,6 +103,7 @@ hamming_score_code = hamming_score_code / length(code_speechs);
 disp(sprintf('Accuracy on single digits ........ %f',  acc_simple))
 disp(sprintf('Accuracy on single digits + reject %f',  acc))
 disp(sprintf('Accuracy on outliers ............. %f',  outlier_acc))
+disp(sprintf('Accuracy on codes ................ %f',  acc_code))
 disp(sprintf('Hamming score on code sequence ... %f', hamming_score_code))
 
 rmpath(genpath(['.']));
