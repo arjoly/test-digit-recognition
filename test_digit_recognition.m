@@ -1,7 +1,7 @@
 clear
 
 LIBRARY_DIR = '~/Documents/MATLAB/';
-DATA_DIR = '~/Documents/MATLAB/stocha-digit-data/';
+DATA_DIR = '/Users/ajoly/Dropbox/thesis/teaching_assistant/stochastique/2015-2016-eng-private/sons-stocha/';
 
 % Load single data
 speechs = {};
@@ -21,8 +21,14 @@ for class_digit = 0:9
 end
 
 % Load outlier data
+outlier_directory = sprintf('%s%s', DATA_DIR, 'outliers');
 
-% TODO will be added later
+try
+    outlier_speechs = load_data(outlier_directory);
+catch ME
+    rmpath(genpath([LIBRARY_DIR 'HMMall']));
+    outlier_speechs = load_data(outlier_directory);
+end
 
 % Load code data
 code_directory = sprintf('%s%s', DATA_DIR, 'codes');
@@ -34,15 +40,22 @@ catch ME
 end
 
 code_ground_truth = {};
-code_files = dir(sprintf('%s/*.wav', code_directory));
+code_files = dir(sprintf('%s/code*', code_directory));
+size(code_files)
 for file_id=1:length(code_files)
     fname = code_files(file_id).name;
-    out = regexp(fname, '\D*(\d*)\D*.wav', 'tokens');
+    out = regexp(fname, '\D*(\d*)\D*.[wav|m4a]', 'tokens');
     code_seq = [];
     for i=1:length(out{1}{1})
-        code_seq(i) = str2num(out{1}{1}(i));
+        code_seq = [code_seq str2num(out{1}{1}(i))];
     end
     code_ground_truth{length(code_ground_truth) + 1} = code_seq;
+end
+
+if length(code_ground_truth) ~= length(code_speechs)
+    length(code_ground_truth)
+    length(code_speechs)
+    error('expected same number of ground truth and code speechs');
 end
 
 % Load library
@@ -52,11 +65,13 @@ addpath(genpath([LIBRARY_DIR 'HMMall']));
 
 % Test recognition system on single digits with no outlier
 [out outlier] = predict(speechs);
+
+acc_simple = mean(out == ground_truth);
 acc = mean((1 - outlier) .* (out == ground_truth));
 
 % Test recognition system on outliers
-
-% TODO will be added later
+[out outlier] = predict(outlier_speechs);
+outlier_acc = mean(outlier);
 
 % Test recognition system on single digits
 code_out = predict_code(code_speechs);
@@ -73,5 +88,7 @@ end
 acc_code = acc_code / length(code_speechs);
 
 % Display results
-disp(sprintf('Accuracy on single digits %d',  acc))
-disp(sprintf('Accuracy on code sequence %d %', acc_code))
+disp(sprintf('Accuracy on single digits ........ %d',  acc_simple))
+disp(sprintf('Accuracy on single digits + reject %d',  acc))
+disp(sprintf('Accuracy on outliers ............. %d',  outlier_acc))
+disp(sprintf('Accuracy on code sequence ........ %d', acc_code))

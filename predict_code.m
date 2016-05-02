@@ -17,7 +17,7 @@ function out = predict_code(speechs)
 
 out = {};
 for i=1:length(speechs)
-    out{i} = [1, 9, 7, 5];
+    out{i} = [1, 2, 3];
 end
 
 end
