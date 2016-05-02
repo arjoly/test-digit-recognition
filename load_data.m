@@ -1,7 +1,8 @@
 function speechs = load_data(data_dir, LIBRARY_DIR)
 % Load speechs from the data_dir directory
 
-files = dir(sprintf('%s/*.wav', data_dir));
+files = [dir(sprintf('%s/*.wav', data_dir)),
+         dir(sprintf('%s/*.m4a', data_dir)) ];
 speechs = {};
 
 for file_id=1:length(files)
