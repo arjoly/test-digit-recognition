@@ -68,16 +68,17 @@ try
     % Test recognition system on single digits with no outlier
     [pred outlier] = predict(speechs);
     acc_simple = mean(pred(:) == ground_truth(:));
-    acc = mean((1 - outlier(:)) .* (pred(:) == ground_truth(:)));
+    acc_noreject_digit = mean(1 - outlier(:));
 
     % Test recognition system on outliers
     [out outlier] = predict(outlier_speechs);
     outlier_acc = mean(outlier);
 catch
+
     % predict has only pred
     pred = predict(speechs);
     acc_simple = mean(pred(:) == ground_truth(:));
-    acc = nan;
+    acc_noreject_digit = nan;
     outlier_acc = nan;
 end
 
@@ -86,6 +87,7 @@ code_out = predict_code(code_speechs);
 
 acc_code = 0;
 hamming_score_code = 0;
+ed_code = 0
 for i = 1:length(code_speechs)
     if length(code_ground_truth{i}) == length(code_out{i})
         n_errors = sum(code_ground_truth{i}(:) ~= code_out{i}(:));
@@ -95,15 +97,18 @@ for i = 1:length(code_speechs)
         hamming_word = (length(code_ground_truth{i}) - n_errors) / length(code_ground_truth{i});
         hamming_score_code = hamming_score_code + hamming_word;
     end
+    ed_code = ed_code + edit_distance_levenshtein(code_ground_truth{i}, code_out{i});
 end
 acc_code = acc_code / length(code_speechs);
 hamming_score_code = hamming_score_code / length(code_speechs);
+ed_code = ed_code / length(code_speechs);
 
 % Display results
 disp(sprintf('Accuracy on single digits ........ %f',  acc_simple))
-disp(sprintf('Accuracy on single digits + reject %f',  acc))
-disp(sprintf('Accuracy on outliers ............. %f',  outlier_acc))
+disp(sprintf('Accuracy on digits rejectection .. %f',  acc_noreject_digit))
+disp(sprintf('Accuracy on outliers detection ... %f',  outlier_acc))
+disp(sprintf('Edit distance on code ............ %f', hamming_score_code))
 disp(sprintf('Accuracy on codes ................ %f',  acc_code))
-disp(sprintf('Hamming score on code sequence ... %f', hamming_score_code))
+disp(sprintf('Hamming score on code ............ %f', hamming_score_code))
 
 rmpath(genpath(['.']));
