@@ -99,14 +99,14 @@ for i = 1:length(code_speechs)
         hamming_word = (length(code_ground_truth{i}) - n_errors) / length(code_ground_truth{i});
         hamming_score_code = hamming_score_code + hamming_word;
 
-        acc_length_code = acc_length_code + 1
+        acc_length_code = acc_length_code + 1;
     end
     ed_code = ed_code + edit_distance_levenshtein(code_ground_truth{i}, code_out{i});
 end
 acc_code = acc_code / length(code_speechs);
 hamming_score_code = hamming_score_code / length(code_speechs);
 ed_code = ed_code / length(code_speechs);
-acc_length_code = acc_length_code / length(code_speechs)
+acc_length_code = acc_length_code / length(code_speechs);
 
 % Display results
 disp(sprintf('Accuracy on single digits ........ %f',  acc_simple))
