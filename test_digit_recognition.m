@@ -40,7 +40,8 @@ catch ME
 end
 
 code_ground_truth = {};
-code_files = dir(sprintf('%s/code*', code_directory));
+code_files = [dir(sprintf('%s/code*.wav', code_directory)),
+              dir(sprintf('%s/code*.m4a', code_directory))];
 
 for file_id=1:length(code_files)
     fname = code_files(file_id).name;
@@ -87,7 +88,8 @@ code_out = predict_code(code_speechs);
 
 acc_code = 0;
 hamming_score_code = 0;
-ed_code = 0
+ed_code = 0;
+acc_length_code = 0;
 for i = 1:length(code_speechs)
     if length(code_ground_truth{i}) == length(code_out{i})
         n_errors = sum(code_ground_truth{i}(:) ~= code_out{i}(:));
@@ -96,19 +98,23 @@ for i = 1:length(code_speechs)
         end
         hamming_word = (length(code_ground_truth{i}) - n_errors) / length(code_ground_truth{i});
         hamming_score_code = hamming_score_code + hamming_word;
+
+        acc_length_code = acc_length_code + 1
     end
     ed_code = ed_code + edit_distance_levenshtein(code_ground_truth{i}, code_out{i});
 end
 acc_code = acc_code / length(code_speechs);
 hamming_score_code = hamming_score_code / length(code_speechs);
 ed_code = ed_code / length(code_speechs);
+acc_length_code = acc_length_code / length(code_speechs)
 
 % Display results
 disp(sprintf('Accuracy on single digits ........ %f',  acc_simple))
 disp(sprintf('Accuracy on digits rejectection .. %f',  acc_noreject_digit))
 disp(sprintf('Accuracy on outliers detection ... %f',  outlier_acc))
-disp(sprintf('Edit distance on code ............ %f', hamming_score_code))
+disp(sprintf('Edit distance on code ............ %f', ed_code))
 disp(sprintf('Accuracy on codes ................ %f',  acc_code))
 disp(sprintf('Hamming score on code ............ %f', hamming_score_code))
+disp(sprintf('Length accuracy on codes ......... %f',  acc_length_code))
 
 rmpath(genpath(['.']));
